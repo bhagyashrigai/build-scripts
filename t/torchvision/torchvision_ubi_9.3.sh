@@ -34,12 +34,7 @@ WORKDIR=$(pwd)
 
 OS_NAME=$(cat /etc/os-release | grep ^PRETTY_NAME | cut -d= -f2)
 
-dnf install -y git cmake ninja-build gcc-toolset-13 rust cargo jq libimagequant\
-            libjpeg-devel openjpeg2-devel libpng-devel \
-            python$PYTHON_VERSION-devel \
-            python$PYTHON_VERSION-pip \
-            python$PYTHON_VERSION-setuptools \
-            python$PYTHON_VERSION-wheel
+dnf install -y python$PYTHON_VERSION-devel python$PYTHON_VERSION-pip python$PYTHON_VERSION-setuptools python$PYTHON_VERSION-wheel
 
 dnf install -y https://mirror.stream.centos.org/9-stream/BaseOS/ppc64le/os/Packages/centos-gpg-keys-9.0-24.el9.noarch.rpm \
             https://mirror.stream.centos.org/9-stream/BaseOS/`arch`/os/Packages/centos-stream-repos-9.0-24.el9.noarch.rpm \
@@ -47,6 +42,8 @@ dnf install -y https://mirror.stream.centos.org/9-stream/BaseOS/ppc64le/os/Packa
 dnf config-manager --add-repo https://mirror.stream.centos.org/9-stream/BaseOS/`arch`/os
 dnf config-manager --add-repo https://mirror.stream.centos.org/9-stream/AppStream/`arch`/os
 dnf config-manager --set-enabled crb
+dnf install -y git cmake ninja-build gcc-toolset-13 rust cargo jq libimagequant\
+            libjpeg-devel openjpeg2-devel libpng-devel \
 
 source /opt/rh/gcc-toolset-13/enable
 
