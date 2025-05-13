@@ -18,10 +18,11 @@
 #
 # ----------------------------------------------------------------------------
 
+set -x
 PACKAGE_NAME=xformers
-PACKAGE_VERSION=${1:-v0.0.28}
+PACKAGE_VERSION=${1:-v0.0.29}
 PACKAGE_URL=https://github.com/facebookresearch/xformers.git
-PYTHON_VER=${PYTHON_VERSION:-3.11}
+# PYTHON_VER=${PYTHON_VERSION:-3.11}
 BUILD_DEPS=${BUILD_DEPS:-true}
 PARALLEL=${PARALLEL:-$(nproc)}
 OS_NAME=$(grep ^PRETTY_NAME /etc/os-release | cut -d= -f2)
@@ -29,8 +30,8 @@ export _GLIBCXX_USE_CXX11_ABI=1
 
 # Install dependencies
 dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
-    git gcc-toolset-13 cmake ninja-build rust cargo \
-    python${PYTHON_VER}-devel python${PYTHON_VER}-pip jq pkg-config atlas
+    git gcc-toolset-13 ninja-build rust cargo \
+    python-devel python-pip jq pkg-config atlas
 
 source /opt/rh/gcc-toolset-13/enable
 
@@ -42,8 +43,8 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64:/usr/local/lib:/usr/lib
 # Clone repository
 if [ -z $PACKAGE_SOURCE_DIR ]; then
   git clone $PACKAGE_URL
-  cd $PACKAGE_NAME  
-else  
+  cd $PACKAGE_NAME
+else
   cd $PACKAGE_SOURCE_DIR
 fi
 
@@ -51,8 +52,8 @@ git checkout $PACKAGE_VERSION
 git submodule update --init
 
 # Install Python dependencies
-python${PYTHON_VER} -m pip install ninja cmake 'pytest==8.2.2' hydra-core
-python${PYTHON_VER} -m pip install --upgrade pip setuptools wheel
+pip3 install --upgrade pip setuptools wheel
+pip3 install ninja 'cmake<4' 'pytest==8.2.2' hydra-core
 
 
 # Check BUILD_DEPS passed from Jenkins
@@ -87,18 +88,18 @@ if [ -z $BUILD_DEPS ] || [ "$BUILD_DEPS" == "true" ]; then
     # Set flags to suppress warnings
     export CXXFLAGS="-Wno-unused-variable -Wno-unused-parameter"
 
-    pip${PYTHON_VER} install -r requirements.txt
-    MAX_JOBS=$PARALLEL python${PYTHON_VER} setup.py install
+    pip3 install -r requirements.txt
+    MAX_JOBS=$PARALLEL python3 setup.py install
 
 
     cd ..
 else
     echo "Skipping PyTorch installation because BUILD_DEPS is set to False or not provided."
-    python${PYTHON_VER} -m pip install -r requirements.txt
+    python3 -m pip install -r requirements.txt
 fi
 
 # Build and install xformers
-if ! python${PYTHON_VER} -m pip install -e . -vvv; then
+if ! pip3 install . -vvv; then
     echo "------------------$PACKAGE_NAME:Build_fails---------------------"
     echo "$PACKAGE_URL $PACKAGE_NAME"
     echo "$PACKAGE_NAME  |  $PACKAGE_URL | $PACKAGE_VERSION | $OS_NAME | GitHub  | Fail |  Build_fails"
@@ -110,7 +111,7 @@ else
 fi
 
 # Test installation
-if python${PYTHON_VER} -c "import xformers"; then
+if python3 -c "import xformers"; then
     echo "------------------$PACKAGE_NAME::Install_Success---------------------"
     echo "$PACKAGE_URL $PACKAGE_NAME"
     echo "$PACKAGE_NAME  |  $PACKAGE_URL | $PACKAGE_VERSION | $OS_NAME | GitHub  | Pass |  Install_Success"
@@ -142,7 +143,7 @@ for TEST_FILE in "${TEST_FILES[@]}"; do
 done
 
 # Run pytest with available test files
-if ! python${PYTHON_VER} -m pytest "${AVAILABLE_TESTS[@]}"; then
+if ! pytest "${AVAILABLE_TESTS[@]}"; then
     echo "------------------$PACKAGE_NAME:install_success_but_test_fails---------------------"
     echo "$PACKAGE_URL $PACKAGE_NAME"
     echo "$PACKAGE_NAME  |  $PACKAGE_URL | $PACKAGE_VERSION | $OS_NAME | GitHub  | Fail |  Install_success_but_test_Fails"
@@ -153,4 +154,3 @@ else
     echo "$PACKAGE_NAME  |  $PACKAGE_URL | $PACKAGE_VERSION | $OS_NAME | GitHub  | Pass |  Both_Install_and_Test_Success"
     exit 0
 fi
-
