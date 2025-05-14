@@ -2,7 +2,7 @@
 # -----------------------------------------------------------------------------
 #
 # Package       : xformers
-# Version       : v0.0.28
+# Version       : v0.0.29
 # Source repo   : https://github.com/facebookresearch/xformers.git
 # Tested on     : UBI 9.3
 # Language      : Python, C++
@@ -23,6 +23,7 @@ PACKAGE_NAME=xformers
 PACKAGE_VERSION=${1:-v0.0.29}
 PACKAGE_URL=https://github.com/facebookresearch/xformers.git
 # PYTHON_VER=${PYTHON_VERSION:-3.11}
+PACKAGE_DIR=xformers
 BUILD_DEPS=${BUILD_DEPS:-true}
 PARALLEL=${PARALLEL:-$(nproc)}
 OS_NAME=$(grep ^PRETTY_NAME /etc/os-release | cut -d= -f2)
