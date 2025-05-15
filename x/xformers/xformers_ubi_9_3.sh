@@ -18,11 +18,9 @@
 #
 # ----------------------------------------------------------------------------
 
-set -x
 PACKAGE_NAME=xformers
 PACKAGE_VERSION=${1:-v0.0.29}
 PACKAGE_URL=https://github.com/facebookresearch/xformers.git
-# PYTHON_VER=${PYTHON_VERSION:-3.11}
 PACKAGE_DIR=xformers
 BUILD_DEPS=${BUILD_DEPS:-true}
 PARALLEL=${PARALLEL:-$(nproc)}
