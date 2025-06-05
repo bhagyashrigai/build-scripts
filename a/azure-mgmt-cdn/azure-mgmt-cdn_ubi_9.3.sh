@@ -1,9 +1,9 @@
 #!/bin/bash -e
 # -----------------------------------------------------------------------------
 #
-# Package          : hf-ext
-# Version          : v1.1.0
-# Source repo      : https://github.com/huggingface/xet-core
+# Package          : azure-mgmt-cdn
+# Version          : azure-mgmt-cdn_13.1.1
+# Source repo      : https://github.com/Azure/azure-sdk-for-python
 # Tested on        : UBI:9.3
 # Language         : Python
 # Travis-Check     : True
@@ -18,46 +18,34 @@
 #
 # ---------------------------------------------------------------------------
 
-# Variables
-PACKAGE_NAME=hf-ext
-PACKAGE_VERSION=${1:-v1.1.0}
-PACKAGE_URL=https://github.com/huggingface/xet-core
-PACKAGE_DIR=xet-core/hf_xet
+PACKAGE_NAME=azure-mgmt-cdn
+PACKAGE_VERSION=${1:-azure-mgmt-cdn_13.1.1}
+PACKAGE_URL=https://github.com/Azure/azure-sdk-for-python
+PACKAGE_DIR=azure-sdk-for-python/sdk/cdn/azure-mgmt-cdn
 CURRENT_DIR=$(pwd)
 
-# Install dependencies
-yum install -y python3.12 wget python3.12-pip python3.12-devel gcc-toolset-13 gcc-toolset-13-binutils gcc-toolset-13-binutils-devel gcc-toolset-13-gcc-c++ git openssl openssl-devel
+yum install -y git make wget gcc-toolset-13 openssl-devel python3 python3-pip python3-devel make rust-toolset openssl openssl-devel libffi libffi-devel
 
-source /opt/rh/gcc-toolset-13/enable
 export PATH=/opt/rh/gcc-toolset-13/root/usr/bin:$PATH
 export LD_LIBRARY_PATH=/opt/rh/gcc-toolset-13/root/usr/lib64:$LD_LIBRARY_PATH
-
-echo "----Installing rust------"
-curl https://sh.rustup.rs -sSf | sh -s -- -y
-source "$HOME/.cargo/env"
 
 # Clone the repository
 git clone $PACKAGE_URL
 cd $PACKAGE_DIR
 git checkout $PACKAGE_VERSION
 
-#install python dependencies
-pip3.12 install numpy cython build pytest
-
-sed -i "s/^version *= *.*/version = \"${PACKAGE_VERSION#v}\"/" Cargo.toml
-
-pip3.12 install maturin build wheel
-
+pip install  setuptools build wheel  pytest-cov setuptools-rust pytest
+pip install -r dev_requirements.txt
 #install
-if ! pip3.12 install -e . ; then
+if ! pip install -e . ; then
     echo "------------------$PACKAGE_NAME:Install_fails-------------------------------------"
     echo "$PACKAGE_URL $PACKAGE_NAME"
     echo "$PACKAGE_NAME  |  $PACKAGE_URL | $PACKAGE_VERSION | GitHub | Fail |  Install_Fails"
-    exit 1
-else
-    echo "------------------$PACKAGE_NAME:Install_success-------------------------"
+    else
+    echo "------------------$PACKAGE_NAME:Install_Pass---------------------------------------"
     echo "$PACKAGE_URL $PACKAGE_NAME"
-    echo "$PACKAGE_NAME  |  $PACKAGE_URL | $PACKAGE_VERSION | GitHub  | Pass |  Install_Success"
+    echo "$PACKAGE_NAME  |  $PACKAGE_URL | $PACKAGE_VERSION | GitHub  | Pass |  Install_Pass"
     exit 0
 fi
-#Skipped the test part as there are no test files to run the tests.
+
+#skipping test command as there are no tests to run
