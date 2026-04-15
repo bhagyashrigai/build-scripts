@@ -33,7 +33,7 @@ export SITE_PACKAGE_PATH=/usr/local/lib/python3.12/site-packages
 #clone and install openblas from source
 git clone https://github.com/OpenMathLib/OpenBLAS
 cd OpenBLAS
-git checkout v0.3.29
+git checkout v0.3.32
 git submodule update --init
 
 wget https://raw.githubusercontent.com/ppc64le/build-scripts/refs/heads/master/o/openblas/pyproject.toml
